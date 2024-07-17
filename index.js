@@ -1,28 +1,30 @@
 import express from "express";
 import { config } from "dotenv";
-import connect from "./Config/database.js";
-import user from "./Routes/user.js";
+import  connect  from "./Config/database.js";
+import user from './Routes/user.js'
+
+//enviromental variable
 config();
 
+//express app
 const app = express();
 
-//to parse the data from the body
+//middleware
 app.use(express.json());
 
-connect();
-
+//default route
 app.get("/", (req, res) => {
-  res.send("Hello World");
-}
-);
-
-app.listen(process.env.PORT || 5000 , () => {
-  console.log("Server is running on port 3000");
+  res.send("this is auth app");
 });
 
-app.use("/api/v1", user);
+//server
+app.listen(process.env.PORT, () => {
+  console.log("server is running on port 3000");
+});
 
+//database connection
+connect();
 
+//Routes
 
-
-
+app.use("api/v1",user);
