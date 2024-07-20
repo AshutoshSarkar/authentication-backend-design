@@ -27,4 +27,4 @@ connect();
 
 //Routes
 
-app.use("api/v1",user);
+app.use("/api/v1",user);

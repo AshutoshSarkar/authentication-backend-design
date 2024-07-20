@@ -3,39 +3,62 @@ import bcrypt from "bcrypt";
 
 export const signup = async (req, res) => {
   try {
+    //fetch the data from the request body
     const { name, email, password, role } = req.body;
 
+    //check if the user already exists
     const existingUser = await User.findOne({ email });
+
+    // if the user already exists then send the response that user exists please login
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User already exists",
+        meassage: "User already exists please login",
       });
     }
 
-    //secure the password
+    //Now we will hash the passwrod 
     let hashedPassword;
-    try {
-      hashedPassword = await bcrypt.hash(password, 10);
-    } catch (err) {
-      return res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
-    }
+    try{
+      hashedPassword = await bcrypt.hash(password,12);
 
-    //create new entry for user
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role,
+      // we will create new entry in the database
+      const user =await User.create({
+        name,
+        email,
+        password:hashedPassword,
+        role,
+      });
+    }
+    catch(error){
+      return res.status(400).json({
+        success:false,
+        message:"cant signup please try again",
+      });
+    }
+    res.status(200).json({
+      success:true,
+      message:"sign up successfully",
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    
+    // send the response 
+  } catch(error){
+    return res.status(400).json({
+      success:false,
+      message:"cant signup please try again ",
+    })
   }
 };
 
 export const login = async (req, res) => {};
+
+ 
+
+
+
+ 
+
+
+
+
+
