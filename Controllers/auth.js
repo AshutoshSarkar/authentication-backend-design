@@ -1,66 +1,96 @@
 import User from "../Models/userModel.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { config } from "dotenv";
+
+config();
 
 export const signup = async (req, res) => {
   try {
-    //fetch the data from the request body
+    //feching the data from req body
     const { name, email, password, role } = req.body;
 
-    //check if the user already exists
+    //ask database that user is present or not
     const existingUser = await User.findOne({ email });
 
-    // if the user already exists then send the response that user exists please login
+    //if user is present
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        meassage: "User already exists please login",
+        message: "User already exist please log in",
       });
     }
 
-    //Now we will hash the passwrod 
+    // now hashing the password
     let hashedPassword;
-    try{
-      hashedPassword = await bcrypt.hash(password,12);
 
-      // we will create new entry in the database
-      const user =await User.create({
+    try {
+      hashedPassword = await bcrypt.hash(password, 10);
+      //creating new user
+      const newUser = new User.create({
         name,
         email,
-        password:hashedPassword,
+        password: hashedPassword,
         role,
       });
-    }
-    catch(error){
+    } catch (error) {
       return res.status(400).json({
-        success:false,
-        message:"cant signup please try again",
+        success: false,
+        message: "cant signup please try again",
       });
     }
-    res.status(200).json({
-      success:true,
-      message:"sign up successfully",
+    //send the response
+    return res.status(201).json({
+      success: true,
+      message: "signed up successfully",
     });
-    
-    // send the response 
-  } catch(error){
+  } catch (error) {
     return res.status(400).json({
-      success:false,
-      message:"cant signup please try again ",
-    })
+      success: false,
+      message: "cant signup please try again",
+    });
   }
 };
 
 export const login = async (req, res) => {
-  
+  try {
+    //fetching the data from req body
+    const { email, password } = req.body;
+
+    // if some field is missing
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "please fill all the fields",
+      });
+    }
+
+    //if user is not present
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "user not found please signup",
+      });
+    }
+
+    //verify password and generate JWT Token
+    const isValid = await bcrypt.compare(password, user.password);
+    //password is valid
+    if (isValid) {
+    }
+    //password is invalid
+    else {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "cant login please try again",
+      error: error,
+    });
+  }
 };
-
- 
-
-
-
- 
-
-
-
-
-
