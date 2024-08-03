@@ -74,10 +74,35 @@ export const login = async (req, res) => {
       });
     }
 
+    const payload = {
+      email: user.email,
+      role: user.role,
+      id: user._id,
+    };
     //verify password and generate JWT Token
     const isValid = await bcrypt.compare(password, user.password);
     //password is valid
     if (isValid) {
+      //generate JWT Token
+      let token = jwt.sign(payload, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
+      user.token = token;
+      user.password = undefined;
+
+      //creating options 
+      const options ={
+        expires:new Date(Date.now() +3*24*60*60*1000),
+        httpOnly:true
+      }
+
+      //generating cookie
+      res.cookie("token", token, options).json({
+        success: true,
+        message: "login Successfully",
+        token: token,
+        user: user,
+      });
     }
     //password is invalid
     else {
