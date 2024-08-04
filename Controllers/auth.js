@@ -66,7 +66,8 @@ export const login = async (req, res) => {
     }
 
     //if user is not present
-    const user = await User.findOne({ email });
+    //use let when defining the user because we will update the user object later
+    let user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -87,14 +88,21 @@ export const login = async (req, res) => {
       let token = jwt.sign(payload, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
+
+      //convert the user to object
+      user= user.toObject();
+
+      //add token to user object in database
       user.token = token;
+
+      //remove password from user object
       user.password = undefined;
 
-      //creating options 
-      const options ={
-        expires:new Date(Date.now() +3*24*60*60*1000),
-        httpOnly:true
-      }
+      //creating options
+      const options = {
+        expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+      };
 
       //generating cookie
       res.cookie("token", token, options).json({
@@ -115,7 +123,7 @@ export const login = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: "cant login please try again",
-      error: error,
+      error: error.message,
     });
   }
 };
