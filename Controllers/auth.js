@@ -27,15 +27,16 @@ export const signup = async (req, res) => {
     try {
       hashedPassword = await bcrypt.hash(password, 10);
       //creating new user
-      const newUser = new User.create({
+      const newUser = await User.create({
         name,
         email,
         password: hashedPassword,
         role,
-      });
+      })
     } catch (error) {
       return res.status(400).json({
         success: false,
+        error: error.message,
         message: "cant signup please try again",
       });
     }
@@ -48,6 +49,7 @@ export const signup = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: "cant signup please try again",
+      error: error.message,
     });
   }
 };
