@@ -1,7 +1,8 @@
 import express from "express";
 import { config } from "dotenv";
 import  connect  from "./Config/database.js";
-import user from './Routes/user.js'
+import user from './Routes/user.js';
+import cookieParser from "cookie-parser";
 
 //enviromental variable
 config();
@@ -10,6 +11,7 @@ config();
 const app = express();
 
 //middleware
+app.use(cookieParser());
 app.use(express.json());
 
 //default route

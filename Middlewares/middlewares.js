@@ -6,7 +6,14 @@ config();
 export const auth = async (req, res, next) => {
   try {
     // Fetching the data from the req body
-    const token = req.body.token;
+    
+    
+    const token =
+      // req.body.token ||
+       req.cookies.token
+      //  || req.header("Authorization").replace("Bearer ", "");
+
+      console.log(token);
 
     // Checking if the token is present or not
     if (!token) {
@@ -41,9 +48,10 @@ export const auth = async (req, res, next) => {
 // isStudent middleware
 export const isStudent = async (req, res, next) => {
   try {
-    if (req.user.role !== "Student") {  // Removed extra space after "Student"
+    if (req.user.role !== "Student") {
+      // Removed extra space after "Student"
       return res.status(401).json({
-        success: false,  // Corrected the typo here
+        success: false, // Corrected the typo here
         message:
           "You are not authorized to access this route, only students can access this route",
       });
@@ -63,7 +71,7 @@ export const isAdmin = async (req, res, next) => {
   try {
     if (req.user.role !== "Admin") {
       return res.status(401).json({
-        success: false,  // Ensured consistency in the "success" key
+        success: false, // Ensured consistency in the "success" key
         message:
           "You are not authorized to access this route because you are not an admin",
       });
